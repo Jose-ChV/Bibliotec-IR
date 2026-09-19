@@ -1,0 +1,1647 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Sistema de Biblioteca</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Literata:opsz,wght@7..72,500;7..72,700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f4f6f3;
+        --surface: #ffffff;
+        --ink: #14201d;
+        --muted: #4d625d;
+        --line: #d3ddd8;
+        --hdr: #14342f;
+        --hdr-ink: #ffffff;
+        --hdr-2: #1e4a43;
+        --brand: #14342f;
+        --brand-ink: #ffffff;
+        --gold: #e2a72e;
+        --gold-ink: #3d2a00;
+        --tint: #e8f1ee;
+        --ok: #1e7a4c;
+        --ok-bg: #e1f2e8;
+        --warn: #8a5a00;
+        --warn-bg: #fbefd3;
+        --bad: #b3261e;
+        --bad-bg: #fbe4e1;
+        --serif: "Literata", Cambria, Georgia, "Times New Roman", serif;
+        --sans: "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+        box-sizing: border-box;
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --bg: #0e1715;
+          --surface: #16231f;
+          --ink: #e6eeea;
+          --muted: #9db0aa;
+          --line: #2a3b36;
+          --hdr: #0a100e;
+          --hdr-ink: #e6eeea;
+          --hdr-2: #16231f;
+          --brand: #e2a72e;
+          --brand-ink: #14201d;
+          --gold: #e2a72e;
+          --gold-ink: #3d2a00;
+          --tint: #1b2d28;
+          --ok: #6ccb9b;
+          --ok-bg: #16362a;
+          --warn: #f0b45a;
+          --warn-bg: #3a2d12;
+          --bad: #ff8a80;
+          --bad-bg: #3d1f1c;
+        }
+      }
+      :root[data-theme="dark"] {
+        --bg: #0e1715;
+        --surface: #16231f;
+        --ink: #e6eeea;
+        --muted: #9db0aa;
+        --line: #2a3b36;
+        --hdr: #0a100e;
+        --hdr-ink: #e6eeea;
+        --hdr-2: #16231f;
+        --brand: #e2a72e;
+        --brand-ink: #14201d;
+        --gold: #e2a72e;
+        --gold-ink: #3d2a00;
+        --tint: #1b2d28;
+        --ok: #6ccb9b;
+        --ok-bg: #16362a;
+        --warn: #f0b45a;
+        --warn-bg: #3a2d12;
+        --bad: #ff8a80;
+        --bad-bg: #3d1f1c;
+      }
+      html {
+        scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 80px);
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: inherit;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: var(--sans);
+        font-size: 16px;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+      }
+      button,
+      input,
+      select {
+        font: inherit;
+        color: inherit;
+      }
+      h1,
+      h2,
+      h3 {
+        font-family: var(--serif);
+        letter-spacing: -0.01em;
+        margin: 0;
+      }
+      .wrap {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+      .hidden {
+        display: none !important;
+      }
+
+      .top {
+        position: sticky;
+        top: env(safe-area-inset-top, 0px);
+        z-index: 20;
+        background: var(--hdr);
+        color: var(--hdr-ink);
+      }
+      .top-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding-top: 12px;
+        padding-bottom: 12px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: var(--serif);
+        font-weight: 700;
+        font-size: 1.2rem;
+        background: none;
+        border: 0;
+        color: inherit;
+        cursor: pointer;
+        padding: 0;
+      }
+      .brand svg {
+        width: 26px;
+        height: 26px;
+        color: var(--gold);
+      }
+      .nav {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .nav-btn {
+        background: transparent;
+        border: 1.5px solid transparent;
+        color: var(--hdr-ink);
+        padding: 8px 14px;
+        min-height: 40px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .nav-btn:hover {
+        background: var(--hdr-2);
+      }
+      .nav-btn[aria-current="page"] {
+        border-color: var(--gold);
+        color: var(--gold);
+      }
+      .who {
+        font-size: 0.85rem;
+        opacity: 0.85;
+      }
+      :focus-visible {
+        outline: 3px solid var(--gold);
+        outline-offset: 2px;
+      }
+      main :focus-visible {
+        outline-color: var(--brand);
+      }
+      :root[data-theme="dark"] main :focus-visible {
+        outline-color: var(--gold);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) main :focus-visible {
+          outline-color: var(--gold);
+        }
+      }
+
+      .hero {
+        background: var(--hdr);
+        color: var(--hdr-ink);
+        padding: 36px 0 40px;
+      }
+      .hero h1 {
+        font-size: clamp(1.9rem, 4.5vw, 3rem);
+        line-height: 1.1;
+        max-width: 18ch;
+      }
+      .hero p {
+        margin: 12px 0 24px;
+        max-width: 56ch;
+        opacity: 0.88;
+        font-size: 1.05rem;
+      }
+      .searchrow {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .search {
+        flex: 1 1 320px;
+        min-height: 52px;
+        padding: 0 16px;
+        border-radius: 10px;
+        border: 2px solid transparent;
+        background: var(--surface);
+        color: var(--ink);
+        font-size: 1.05rem;
+      }
+      .seg {
+        display: inline-flex;
+        background: var(--hdr-2);
+        border-radius: 10px;
+        padding: 4px;
+      }
+      .seg button {
+        border: 0;
+        background: transparent;
+        color: var(--hdr-ink);
+        padding: 0 16px;
+        min-height: 44px;
+        border-radius: 7px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .seg button[aria-pressed="true"] {
+        background: var(--gold);
+        color: var(--gold-ink);
+      }
+
+      .results {
+        padding: 28px 0 56px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 16px;
+      }
+      .book {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .cota {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
+      .book h3 {
+        font-size: 1.15rem;
+        line-height: 1.25;
+      }
+      .book .au {
+        color: var(--muted);
+        font-size: 0.95rem;
+        margin-top: -4px;
+      }
+      .book-foot {
+        margin-top: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .badge {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        width: max-content;
+      }
+      .b-ok {
+        background: var(--ok-bg);
+        color: var(--ok);
+      }
+      .b-warn {
+        background: var(--warn-bg);
+        color: var(--warn);
+      }
+      .b-bad {
+        background: var(--bad-bg);
+        color: var(--bad);
+      }
+      .b-mut {
+        background: var(--tint);
+        color: var(--muted);
+      }
+      .small {
+        font-size: 0.88rem;
+        color: var(--muted);
+      }
+      .empty {
+        grid-column: 1/-1;
+        padding: 32px;
+        text-align: center;
+        border: 1.5px dashed var(--line);
+        border-radius: 10px;
+        color: var(--muted);
+      }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 22px;
+      }
+      .card h2 {
+        font-size: 1.2rem;
+        margin-bottom: 14px;
+      }
+      .field {
+        display: block;
+        margin-bottom: 14px;
+      }
+      .field > span {
+        display: block;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 6px;
+      }
+      .field input,
+      .field select {
+        width: 100%;
+        min-height: 46px;
+        padding: 0 14px;
+        border: 1.5px solid var(--line);
+        border-radius: 8px;
+        background: var(--bg);
+      }
+      .hint {
+        display: block;
+        min-height: 1.3em;
+        margin-top: 4px;
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 46px;
+        padding: 0 20px;
+        border-radius: 8px;
+        border: 1.5px solid var(--brand);
+        background: var(--brand);
+        color: var(--brand-ink);
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .btn:hover {
+        filter: brightness(1.1);
+      }
+      .btn.ghost {
+        background: transparent;
+        color: var(--brand);
+      }
+      .btn.sm {
+        min-height: 38px;
+        padding: 0 14px;
+        font-size: 0.9rem;
+      }
+      .btn.block {
+        width: 100%;
+      }
+      .link {
+        background: none;
+        border: 0;
+        padding: 4px;
+        color: var(--brand);
+        font-weight: 600;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+        cursor: pointer;
+      }
+      :root[data-theme="dark"] .link,
+      :root[data-theme="dark"] .btn.ghost {
+        color: var(--gold);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) .link,
+        :root:not([data-theme="light"]) .btn.ghost {
+          color: var(--gold);
+        }
+      }
+      .msg {
+        padding: 12px 14px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        font-weight: 500;
+      }
+      .msg.ok {
+        background: var(--ok-bg);
+        color: var(--ok);
+      }
+      .msg.err {
+        background: var(--bad-bg);
+        color: var(--bad);
+      }
+      .demo {
+        margin-top: 16px;
+        padding-top: 14px;
+        border-top: 1px dashed var(--line);
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+      .demo code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        background: var(--bg);
+        padding: 1px 6px;
+        border-radius: 4px;
+        color: var(--ink);
+      }
+
+      .panel {
+        padding: 28px 0 56px;
+      }
+      .panel-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .panel-head h1 {
+        font-size: clamp(1.5rem, 3vw, 2rem);
+      }
+      .perf {
+        font-size: 0.88rem;
+        padding: 8px 12px;
+        border-radius: 8px;
+        background: var(--tint);
+        color: var(--muted);
+      }
+      .perf strong {
+        color: var(--ok);
+        font-variant-numeric: tabular-nums;
+      }
+      .tabs {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+        border-bottom: 1.5px solid var(--line);
+        margin-bottom: 22px;
+      }
+      .tab {
+        background: none;
+        border: 0;
+        padding: 12px 16px;
+        cursor: pointer;
+        font-weight: 600;
+        color: var(--muted);
+        border-bottom: 3px solid transparent;
+        margin-bottom: -1.5px;
+        min-height: 46px;
+      }
+      .tab[aria-selected="true"] {
+        color: var(--ink);
+        border-bottom-color: var(--gold);
+      }
+      .count {
+        margin-left: 6px;
+        padding: 1px 8px;
+        border-radius: 999px;
+        background: var(--bad-bg);
+        color: var(--bad);
+        font-size: 0.8rem;
+      }
+      .two {
+        display: grid;
+        grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
+        gap: 20px;
+        align-items: start;
+      }
+      .scroll {
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.92rem;
+      }
+      th,
+      td {
+        padding: 10px 10px;
+        text-align: left;
+        border-bottom: 1px solid var(--line);
+        vertical-align: middle;
+      }
+      th {
+        font-size: 0.85rem;
+        color: var(--muted);
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      td.n,
+      th.n {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+      .tools {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .tools input {
+        flex: 1;
+        min-height: 44px;
+        padding: 0 14px;
+        border: 1.5px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+      }
+      .kpis {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+      .kpi {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 18px;
+      }
+      .kpi b {
+        display: block;
+        font-family: var(--serif);
+        font-size: 2.2rem;
+        line-height: 1.1;
+        font-variant-numeric: tabular-nums;
+      }
+      .kpi span {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+      .kpi.bad b {
+        color: var(--bad);
+      }
+      .bars {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .bars li {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 40px;
+        gap: 4px 12px;
+        align-items: center;
+        font-size: 0.92rem;
+      }
+      .bar {
+        grid-column: 1/-1;
+        height: 10px;
+        border-radius: 5px;
+        background: var(--tint);
+        overflow: hidden;
+      }
+      .bar i {
+        display: block;
+        height: 100%;
+        background: var(--brand);
+        border-radius: 5px;
+      }
+      :root[data-theme="dark"] .bar i {
+        background: var(--gold);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) .bar i {
+          background: var(--gold);
+        }
+      }
+      .foot {
+        margin-top: 28px;
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+      .login {
+        max-width: 440px;
+        margin: 6vh auto 0;
+        padding: 0 20px;
+      }
+      .login h1 {
+        font-size: 1.9rem;
+        margin-bottom: 6px;
+      }
+      .login .lead {
+        color: var(--muted);
+        margin: 0 0 20px;
+      }
+
+      .two.eq {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      }
+      @media (max-width: 860px) {
+        .two,
+        .two.eq {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 520px) {
+        .wrap {
+          padding: 0 14px;
+        }
+        .who {
+          display: none;
+        }
+        .nav-btn {
+          padding: 8px 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="top">
+      <div class="wrap top-row">
+        <button class="brand" type="button" data-act="go-catalog" aria-label="Ir al catálogo">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path
+              d="M12 5.5C10.2 4.3 7.9 3.7 4 3.7v13.6c3.9 0 6.2.6 8 1.8 1.8-1.2 4.1-1.8 8-1.8V3.7c-3.9 0-6.2.6-8 1.8Z"
+            />
+          </svg>
+          Biblioteca
+        </button>
+        <nav class="nav" id="nav" aria-label="Principal"></nav>
+      </div>
+    </header>
+
+    <main id="main"></main>
+
+    <script>
+      (function () {
+        "use strict";
+
+        var KEY = "biblioteca:v1";
+        var LOAN_DAYS = 7,
+          MAX_LOANS = 3,
+          DAY = 86400000,
+          LIMIT_MS = 5000;
+        var USERS = {
+          bibliotecario: { pass: "biblio123", role: "bibliotecario", name: "Bibliotecario" },
+          admin: { pass: "admin123", role: "administrador", name: "Administrador" },
+        };
+
+        function startOfDay(ts) {
+          var d = new Date(ts);
+          d.setHours(0, 0, 0, 0);
+          return d.getTime();
+        }
+
+        function seed() {
+          var now = Date.now(),
+            today = startOfDay(now);
+          var books = [
+            { id: "L-01", title: "Ingeniería de Software", author: "Ian Sommerville", n: 2 },
+            {
+              id: "L-02",
+              title: "Fundamentos de Bases de Datos",
+              author: "Abraham Silberschatz",
+              n: 2,
+            },
+            {
+              id: "L-03",
+              title: "Análisis y Diseño de Sistemas",
+              author: "Kenneth E. Kendall",
+              n: 3,
+            },
+            {
+              id: "L-04",
+              title: "Sistemas Operativos Modernos",
+              author: "Andrew S. Tanenbaum",
+              n: 1,
+            },
+            { id: "L-05", title: "Redes de Computadoras", author: "Andrew S. Tanenbaum", n: 2 },
+            {
+              id: "L-06",
+              title: "Probabilidad y Estadística Aplicadas a la Ingeniería",
+              author: "Douglas C. Montgomery",
+              n: 2,
+            },
+            { id: "L-07", title: "Cien años de soledad", author: "Gabriel García Márquez", n: 3 },
+            { id: "L-08", title: "Los ríos profundos", author: "José María Arguedas", n: 2 },
+          ];
+          var ejem = [],
+            seq = 1000,
+            first = {};
+          books.forEach(function (b) {
+            for (var i = 0; i < b.n; i++) {
+              seq++;
+              var code = "E-" + seq;
+              ejem.push({ code: code, book: b.id, baja: false });
+              if (i === 0) first[b.id] = code;
+            }
+            delete b.n;
+          });
+          var readers = [
+            { code: "R-001", name: "Ana Quispe Rojas" },
+            { code: "R-002", name: "Luis Vargas Paredes" },
+            { code: "R-003", name: "Marta Salazar León" },
+            { code: "R-004", name: "Diego Rivas Cruz" },
+          ];
+          var loans = [],
+            lid = 0;
+          function loan(bookId, reader, outDays, retDays) {
+            var out = today - outDays * DAY;
+            loans.push({
+              id: ++lid,
+              ej: first[bookId],
+              reader: reader,
+              out: out,
+              due: out + LOAN_DAYS * DAY,
+              ret: retDays == null ? null : today - retDays * DAY,
+            });
+          }
+          loan("L-01", "R-001", 40, 34);
+          loan("L-01", "R-003", 30, 25);
+          loan("L-01", "R-004", 20, 15);
+          loan("L-02", "R-002", 35, 30);
+          loan("L-02", "R-001", 22, 18);
+          loan("L-07", "R-004", 28, 21);
+          loan("L-07", "R-003", 14, 9);
+          loan("L-03", "R-003", 25, 19);
+          loan("L-06", "R-002", 18, 13);
+          loan("L-01", "R-001", 2, null);
+          loan("L-03", "R-002", 12, null);
+          loan("L-04", "R-003", 3, null);
+          return {
+            books: books,
+            ejem: ejem,
+            readers: readers,
+            loans: loans,
+            seqE: seq,
+            seqB: books.length,
+            seqL: lid,
+          };
+        }
+
+        var store;
+        function load() {
+          try {
+            var raw = localStorage.getItem(KEY);
+            if (raw) return JSON.parse(raw);
+          } catch (e) {}
+          return seed();
+        }
+        function save() {
+          try {
+            localStorage.setItem(KEY, JSON.stringify(store));
+          } catch (e) {}
+        }
+        store = load();
+
+        function h(s) {
+          return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+            return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+          });
+        }
+        function fmt(ts) {
+          return new Date(ts).toLocaleDateString("es-PE", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+          });
+        }
+        function norm(s) {
+          return String(s || "")
+            .trim()
+            .toUpperCase();
+        }
+        function low(s) {
+          return String(s || "")
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+        }
+        function getBook(id) {
+          return store.books.filter(function (b) {
+            return b.id === id;
+          })[0];
+        }
+        function getEj(code) {
+          return store.ejem.filter(function (e) {
+            return e.code === code;
+          })[0];
+        }
+        function getReader(code) {
+          return store.readers.filter(function (r) {
+            return r.code === code;
+          })[0];
+        }
+        function activeLoanOfEj(code) {
+          return store.loans.filter(function (l) {
+            return l.ej === code && !l.ret;
+          })[0];
+        }
+        function activeLoansOfReader(code) {
+          return store.loans.filter(function (l) {
+            return l.reader === code && !l.ret;
+          });
+        }
+        function lateDays(l) {
+          if (l.ret) return 0;
+          var d = Math.floor((startOfDay(Date.now()) - l.due) / DAY);
+          return d > 0 ? d : 0;
+        }
+        function isOverdue(l) {
+          return !l.ret && lateDays(l) > 0;
+        }
+        function ejOfBook(id) {
+          return store.ejem.filter(function (e) {
+            return e.book === id && !e.baja;
+          });
+        }
+        function availOfBook(id) {
+          return ejOfBook(id).filter(function (e) {
+            return !activeLoanOfEj(e.code);
+          });
+        }
+        function plural(n, one, many) {
+          return n + " " + (n === 1 ? one : many);
+        }
+        function ejTitle(code) {
+          var e = getEj(code);
+          var b = e && getBook(e.book);
+          return b ? b.title : code;
+        }
+
+        var state = {
+          view: "catalog",
+          tab: "prestamos",
+          user: null,
+          filter: "all",
+          q: "",
+          dq: "",
+          msg: null,
+          perf: null,
+        };
+        var $main = document.getElementById("main");
+        var $nav = document.getElementById("nav");
+
+        function setMsg(kind, text) {
+          state.msg = { kind: kind, text: text };
+        }
+        function timed(fn) {
+          var t0 = performance.now();
+          var r = fn();
+          state.perf = performance.now() - t0;
+          return r;
+        }
+
+        function renderNav() {
+          var cat = state.view === "catalog";
+          var html =
+            '<button class="nav-btn" data-act="go-catalog"' +
+            (cat ? ' aria-current="page"' : "") +
+            ">Catálogo</button>";
+          if (state.user) {
+            html +=
+              '<button class="nav-btn" data-act="go-panel"' +
+              (state.view === "panel" ? ' aria-current="page"' : "") +
+              ">Panel</button>" +
+              '<span class="who">' +
+              h(state.user.name) +
+              "</span>" +
+              '<button class="nav-btn" data-act="logout">Salir</button>';
+          } else {
+            html +=
+              '<button class="nav-btn" data-act="go-login"' +
+              (state.view === "login" ? ' aria-current="page"' : "") +
+              ">Acceso bibliotecario</button>";
+          }
+          $nav.innerHTML = html;
+        }
+        function render() {
+          renderNav();
+          if (state.view === "catalog") renderCatalog();
+          else if (state.view === "login") renderLogin();
+          else renderPanel();
+          window.scrollTo(0, 0);
+        }
+
+        function renderCatalog() {
+          $main.innerHTML =
+            '<section class="hero"><div class="wrap">' +
+            "<h1>Encuentra tu libro y mira si está disponible</h1>" +
+            "<p>Consulta el catálogo desde cualquier lugar. Si el libro está prestado, te mostramos cuándo se espera de vuelta.</p>" +
+            '<div class="searchrow">' +
+            '<input class="search" id="q" type="search" placeholder="Buscar por título, autor o código" aria-label="Buscar libro" value="' +
+            h(state.q) +
+            '">' +
+            '<div class="seg" role="group" aria-label="Filtrar por disponibilidad">' +
+            '<button data-act="filter" data-v="all" aria-pressed="' +
+            (state.filter === "all") +
+            '">Todos</button>' +
+            '<button data-act="filter" data-v="avail" aria-pressed="' +
+            (state.filter === "avail") +
+            '">Disponibles</button>' +
+            "</div>" +
+            "</div>" +
+            "</div></section>" +
+            '<div class="wrap"><div class="results" id="results" aria-live="polite"></div></div>';
+          renderResults();
+        }
+        function renderResults() {
+          var q = low(state.q);
+          var list = store.books.filter(function (b) {
+            if (
+              q &&
+              low(b.title).indexOf(q) === -1 &&
+              low(b.author).indexOf(q) === -1 &&
+              low(b.id).indexOf(q) === -1
+            )
+              return false;
+            if (state.filter === "avail" && availOfBook(b.id).length === 0) return false;
+            return true;
+          });
+          var el = document.getElementById("results");
+          if (!list.length) {
+            el.innerHTML =
+              '<div class="empty">No encontramos libros con esa búsqueda. Prueba con otro título, autor o código.</div>';
+            return;
+          }
+          el.innerHTML = list
+            .map(function (b) {
+              var total = ejOfBook(b.id).length,
+                av = availOfBook(b.id).length,
+                status,
+                foot;
+              if (total === 0) {
+                status = '<span class="badge b-mut">No disponible</span>';
+                foot = '<span class="small">Sin ejemplares en circulación.</span>';
+              } else if (av > 0) {
+                status = '<span class="badge b-ok">Disponible</span>';
+                foot =
+                  '<span class="small">' +
+                  av +
+                  " de " +
+                  plural(total, "ejemplar", "ejemplares") +
+                  " en biblioteca</span>";
+              } else {
+                var dues = ejOfBook(b.id)
+                  .map(function (e) {
+                    return activeLoanOfEj(e.code);
+                  })
+                  .filter(Boolean)
+                  .map(function (l) {
+                    return l.due;
+                  });
+                var next = Math.min.apply(null, dues);
+                status = '<span class="badge b-warn">Prestado</span>';
+                foot = '<span class="small">Se espera de vuelta el ' + fmt(next) + "</span>";
+              }
+              return (
+                '<article class="book"><span class="cota">' +
+                h(b.id) +
+                "</span><h3>" +
+                h(b.title) +
+                '</h3><div class="au">' +
+                h(b.author) +
+                "</div>" +
+                '<div class="book-foot">' +
+                status +
+                foot +
+                "</div></article>"
+              );
+            })
+            .join("");
+        }
+
+        function renderLogin(err) {
+          $main.innerHTML =
+            '<section class="login"><h1>Acceso bibliotecario</h1><p class="lead">Ingresa con tu usuario y contraseña para gestionar préstamos.</p>' +
+            '<div class="card">' +
+            (err ? '<p class="msg err" role="alert">' + h(err) + "</p>" : "") +
+            '<form data-form="login" autocomplete="off" novalidate>' +
+            '<label class="field"><span>Usuario</span><input id="iUser" autocomplete="username" required></label>' +
+            '<label class="field"><span>Contraseña</span><input id="iPass" type="password" autocomplete="current-password" required></label>' +
+            '<button class="btn block" type="submit">Iniciar sesión</button>' +
+            "</form>" +
+            '<p class="demo">Datos de prueba: <code>bibliotecario</code> con <code>biblio123</code>, o <code>admin</code> con <code>admin123</code> (el administrador también ve Catálogo y Reportes).</p>' +
+            "</div></section>";
+          document.getElementById("iUser").focus();
+        }
+
+        var TABS = [
+          { id: "prestamos", label: "Préstamos" },
+          { id: "devoluciones", label: "Devoluciones" },
+          { id: "lectores", label: "Lectores" },
+          { id: "catalogo", label: "Catálogo", admin: true },
+          { id: "reportes", label: "Reportes", admin: true },
+        ];
+        function renderPanel() {
+          var isAdmin = state.user.role === "administrador";
+          var tabs = TABS.filter(function (t) {
+            return !t.admin || isAdmin;
+          });
+          if (
+            !tabs.some(function (t) {
+              return t.id === state.tab;
+            })
+          )
+            state.tab = "prestamos";
+          var overdue = store.loans.filter(isOverdue).length;
+          var perf =
+            state.perf == null
+              ? '<span class="perf">Cada operación debe responder en menos de 5 s.</span>'
+              : '<span class="perf" role="status">Última operación: <strong>' +
+                state.perf.toFixed(1) +
+                " ms</strong> (límite 5 000 ms)</span>";
+          $main.innerHTML =
+            '<div class="wrap panel">' +
+            '<div class="panel-head"><h1>Panel del bibliotecario</h1>' +
+            perf +
+            "</div>" +
+            '<div class="tabs" role="tablist">' +
+            tabs
+              .map(function (t) {
+                return (
+                  '<button class="tab" role="tab" data-act="tab" data-v="' +
+                  t.id +
+                  '" aria-selected="' +
+                  (state.tab === t.id) +
+                  '">' +
+                  t.label +
+                  (t.id === "devoluciones" && overdue
+                    ? '<span class="count" title="Préstamos vencidos">' + overdue + "</span>"
+                    : "") +
+                  "</button>"
+                );
+              })
+              .join("") +
+            "</div>" +
+            (state.msg
+              ? '<p class="msg ' +
+                state.msg.kind +
+                '" role="' +
+                (state.msg.kind === "err" ? "alert" : "status") +
+                '">' +
+                h(state.msg.text) +
+                "</p>"
+              : "") +
+            '<div id="tabBody"></div>' +
+            '<p class="foot"><button class="link" data-act="reset">Restablecer datos de prueba</button></p>' +
+            "</div>";
+          var body = document.getElementById("tabBody");
+          if (state.tab === "prestamos") body.innerHTML = tabPrestamos();
+          else if (state.tab === "devoluciones") body.innerHTML = tabDevoluciones();
+          else if (state.tab === "lectores") body.innerHTML = tabLectores();
+          else if (state.tab === "catalogo") body.innerHTML = tabCatalogo();
+          else body.innerHTML = tabReportes();
+          state.msg = null;
+        }
+        function focusId(id) {
+          var el = document.getElementById(id);
+          if (el) el.focus();
+        }
+
+        function tabPrestamos() {
+          var readers = store.readers
+            .map(function (r) {
+              return '<option value="' + h(r.code) + '" label="' + h(r.name) + '"></option>';
+            })
+            .join("");
+          var ejs = store.ejem
+            .filter(function (e) {
+              return !e.baja && !activeLoanOfEj(e.code);
+            })
+            .map(function (e) {
+              return (
+                '<option value="' + h(e.code) + '" label="' + h(ejTitle(e.code)) + '"></option>'
+              );
+            })
+            .join("");
+          var recent = store.loans
+            .slice()
+            .sort(function (a, b) {
+              return b.id - a.id;
+            })
+            .slice(0, 6)
+            .map(function (l) {
+              var r = getReader(l.reader);
+              var st = l.ret
+                ? '<span class="badge b-mut">Devuelto</span>'
+                : isOverdue(l)
+                  ? '<span class="badge b-bad">Vencido</span>'
+                  : '<span class="badge b-ok">En plazo</span>';
+              return (
+                "<tr><td>" +
+                h(r ? r.name : l.reader) +
+                "</td><td>" +
+                h(ejTitle(l.ej)) +
+                '<br><span class="small">' +
+                h(l.ej) +
+                "</span></td><td>" +
+                fmt(l.out) +
+                "</td><td>" +
+                fmt(l.due) +
+                "</td><td>" +
+                st +
+                "</td></tr>"
+              );
+            })
+            .join("");
+          return (
+            '<div class="two">' +
+            '<div class="card"><h2>Registrar préstamo</h2>' +
+            '<form data-form="loan" autocomplete="off">' +
+            '<label class="field"><span>Código del lector</span><input id="fReader" list="dlReaders" placeholder="R-001" required><small class="hint" id="hReader"></small></label>' +
+            '<label class="field"><span>Código del ejemplar</span><input id="fEj" list="dlEj" placeholder="E-1001" required><small class="hint" id="hEj"></small></label>' +
+            '<datalist id="dlReaders">' +
+            readers +
+            '</datalist><datalist id="dlEj">' +
+            ejs +
+            "</datalist>" +
+            '<p class="small" style="margin:0 0 14px">La entrega es hoy y la devolución en ' +
+            LOAN_DAYS +
+            " días. Máximo " +
+            MAX_LOANS +
+            " préstamos por lector.</p>" +
+            '<button class="btn block" type="submit">Registrar préstamo</button>' +
+            "</form></div>" +
+            '<div class="card"><h2>Últimos movimientos</h2><div class="scroll"><table><thead><tr><th>Lector</th><th>Libro</th><th>Entrega</th><th>Vence</th><th>Estado</th></tr></thead><tbody>' +
+            recent +
+            "</tbody></table></div></div>" +
+            "</div>"
+          );
+        }
+        function registrarPrestamo(readerCode, ejCode) {
+          return timed(function () {
+            var r = getReader(readerCode);
+            if (!r)
+              return { ok: false, text: "No existe un lector con el código " + readerCode + "." };
+            var e = getEj(ejCode);
+            if (!e) return { ok: false, text: "No existe el ejemplar " + ejCode + "." };
+            if (e.baja) return { ok: false, text: "El ejemplar " + ejCode + " está dado de baja." };
+            var busy = activeLoanOfEj(ejCode);
+            if (busy) {
+              var who = getReader(busy.reader);
+              return {
+                ok: false,
+                text:
+                  "El ejemplar " +
+                  ejCode +
+                  " ya está prestado a " +
+                  (who ? who.name : busy.reader) +
+                  " y vence el " +
+                  fmt(busy.due) +
+                  ".",
+              };
+            }
+            var act = activeLoansOfReader(readerCode);
+            var venc = act.filter(isOverdue).length;
+            if (venc)
+              return {
+                ok: false,
+                text:
+                  r.name +
+                  " tiene " +
+                  plural(venc, "préstamo vencido", "préstamos vencidos") +
+                  ". Debe devolverlos antes de pedir otro libro.",
+              };
+            if (act.length >= MAX_LOANS)
+              return {
+                ok: false,
+                text: r.name + " ya tiene " + MAX_LOANS + " préstamos activos, que es el máximo.",
+              };
+            var out = startOfDay(Date.now());
+            store.loans.push({
+              id: ++store.seqL,
+              ej: ejCode,
+              reader: readerCode,
+              out: out,
+              due: out + LOAN_DAYS * DAY,
+              ret: null,
+            });
+            save();
+            return {
+              ok: true,
+              text:
+                "Préstamo registrado: " +
+                ejTitle(ejCode) +
+                " para " +
+                r.name +
+                ". Devolución el " +
+                fmt(out + LOAN_DAYS * DAY) +
+                ".",
+            };
+          });
+        }
+
+        function tabDevoluciones() {
+          var q = low(state.dq);
+          var act = store.loans
+            .filter(function (l) {
+              return !l.ret;
+            })
+            .filter(function (l) {
+              if (!q) return true;
+              var r = getReader(l.reader);
+              return (
+                low(l.reader).indexOf(q) !== -1 ||
+                low(r ? r.name : "").indexOf(q) !== -1 ||
+                low(l.ej).indexOf(q) !== -1 ||
+                low(ejTitle(l.ej)).indexOf(q) !== -1
+              );
+            })
+            .sort(function (a, b) {
+              return a.due - b.due;
+            });
+          var rows = act
+            .map(function (l) {
+              var r = getReader(l.reader),
+                late = lateDays(l);
+              var st = late
+                ? '<span class="badge b-bad">Vencido, ' +
+                  plural(late, "día", "días") +
+                  " de retraso</span>"
+                : '<span class="badge b-ok">En plazo</span>';
+              return (
+                "<tr><td>" +
+                h(r ? r.name : l.reader) +
+                '<br><span class="small">' +
+                h(l.reader) +
+                "</span></td><td>" +
+                h(ejTitle(l.ej)) +
+                '<br><span class="small">' +
+                h(l.ej) +
+                "</span></td><td>" +
+                fmt(l.out) +
+                "</td><td>" +
+                fmt(l.due) +
+                "</td><td>" +
+                st +
+                "</td>" +
+                '<td><button class="btn sm" data-act="return" data-id="' +
+                l.id +
+                '">Registrar devolución</button></td></tr>'
+              );
+            })
+            .join("");
+          return (
+            '<div class="card"><h2>Préstamos activos</h2>' +
+            '<div class="tools"><input id="dq" type="search" placeholder="Buscar por lector, libro o código" aria-label="Buscar préstamo" value="' +
+            h(state.dq) +
+            '"></div>' +
+            '<div class="scroll"><table><thead><tr><th>Lector</th><th>Libro</th><th>Entrega</th><th>Vence</th><th>Estado</th><th></th></tr></thead><tbody id="dRows">' +
+            (rows ||
+              '<tr><td colspan="6" class="small" style="padding:24px;text-align:center">No hay préstamos activos que coincidan.</td></tr>') +
+            "</tbody></table></div></div>"
+          );
+        }
+        function registrarDevolucion(id) {
+          return timed(function () {
+            var l = store.loans.filter(function (x) {
+              return x.id === id;
+            })[0];
+            if (!l || l.ret) return { ok: false, text: "Ese préstamo ya fue devuelto." };
+            var late = lateDays(l);
+            l.ret = Date.now();
+            save();
+            var r = getReader(l.reader);
+            return {
+              ok: true,
+              text:
+                "Devolución registrada: " +
+                ejTitle(l.ej) +
+                " de " +
+                (r ? r.name : l.reader) +
+                ". " +
+                (late
+                  ? "Retraso de " + plural(late, "día", "días") + "."
+                  : "Entregado dentro del plazo."),
+            };
+          });
+        }
+
+        function tabLectores() {
+          var rows = store.readers
+            .map(function (r) {
+              var act = activeLoansOfReader(r.code),
+                venc = act.filter(isOverdue).length;
+              return (
+                "<tr><td>" +
+                h(r.code) +
+                "</td><td>" +
+                h(r.name) +
+                '</td><td class="n">' +
+                act.length +
+                "</td><td>" +
+                (venc
+                  ? '<span class="badge b-bad">' + plural(venc, "vencido", "vencidos") + "</span>"
+                  : '<span class="badge b-ok">Al día</span>') +
+                "</td></tr>"
+              );
+            })
+            .join("");
+          return (
+            '<div class="two">' +
+            '<div class="card"><h2>Registrar lector</h2><form data-form="reader" autocomplete="off">' +
+            '<label class="field"><span>Código</span><input id="rCode" placeholder="R-005" required></label>' +
+            '<label class="field"><span>Nombre completo</span><input id="rName" required></label>' +
+            '<button class="btn block" type="submit">Guardar lector</button></form></div>' +
+            '<div class="card"><h2>Lectores registrados</h2><div class="scroll"><table><thead><tr><th>Código</th><th>Nombre</th><th class="n">Préstamos activos</th><th>Situación</th></tr></thead><tbody>' +
+            rows +
+            "</tbody></table></div></div>" +
+            "</div>"
+          );
+        }
+
+        function tabCatalogo() {
+          var rows = store.ejem
+            .slice()
+            .sort(function (a, b) {
+              return a.code < b.code ? -1 : 1;
+            })
+            .map(function (e) {
+              var b = getBook(e.book),
+                loan = activeLoanOfEj(e.code),
+                st,
+                act = "";
+              if (e.baja) st = '<span class="badge b-mut">De baja</span>';
+              else if (loan) st = '<span class="badge b-warn">Prestado</span>';
+              else {
+                st = '<span class="badge b-ok">Disponible</span>';
+                act =
+                  '<button class="link" data-act="baja" data-code="' +
+                  h(e.code) +
+                  '">Dar de baja</button>';
+              }
+              return (
+                "<tr><td>" +
+                h(e.code) +
+                "</td><td>" +
+                h(b ? b.title : e.book) +
+                '<br><span class="small">' +
+                h(b ? b.author : "") +
+                "</span></td><td>" +
+                st +
+                "</td><td>" +
+                act +
+                "</td></tr>"
+              );
+            })
+            .join("");
+          return (
+            '<div class="two">' +
+            '<div class="card"><h2>Agregar libro</h2><form data-form="book" autocomplete="off">' +
+            '<label class="field"><span>Título</span><input id="bTitle" required></label>' +
+            '<label class="field"><span>Autor</span><input id="bAuthor" required></label>' +
+            '<label class="field"><span>Número de ejemplares</span><input id="bN" type="number" min="1" max="10" value="1" required></label>' +
+            '<button class="btn block" type="submit">Guardar libro</button></form></div>' +
+            '<div class="card"><h2>Ejemplares</h2><div class="scroll"><table><thead><tr><th>Código</th><th>Libro</th><th>Estado</th><th></th></tr></thead><tbody>' +
+            rows +
+            "</tbody></table></div></div>" +
+            "</div>"
+          );
+        }
+
+        function tabReportes() {
+          var act = store.loans.filter(function (l) {
+            return !l.ret;
+          });
+          var venc = act.filter(isOverdue);
+          var disp = store.ejem.filter(function (e) {
+            return !e.baja && !activeLoanOfEj(e.code);
+          }).length;
+          var counts = {};
+          store.loans.forEach(function (l) {
+            var e = getEj(l.ej);
+            if (e) counts[e.book] = (counts[e.book] || 0) + 1;
+          });
+          var top = Object.keys(counts)
+            .map(function (id) {
+              return { id: id, n: counts[id] };
+            })
+            .sort(function (a, b) {
+              return b.n - a.n;
+            })
+            .slice(0, 5);
+          var max = top.length ? top[0].n : 1;
+          var bars = top
+            .map(function (t) {
+              var b = getBook(t.id);
+              return (
+                "<li><span>" +
+                h(b ? b.title : t.id) +
+                '</span><strong class="n" style="text-align:right">' +
+                t.n +
+                '</strong><span class="bar"><i style="width:' +
+                Math.round((t.n / max) * 100) +
+                '%"></i></span></li>'
+              );
+            })
+            .join("");
+          var vrows = venc
+            .map(function (l) {
+              var r = getReader(l.reader);
+              return (
+                "<tr><td>" +
+                h(r ? r.name : l.reader) +
+                "</td><td>" +
+                h(ejTitle(l.ej)) +
+                "</td><td>" +
+                fmt(l.due) +
+                '</td><td class="n">' +
+                lateDays(l) +
+                "</td></tr>"
+              );
+            })
+            .join("");
+          return (
+            '<div class="kpis">' +
+            '<div class="kpi"><b>' +
+            act.length +
+            "</b><span>Préstamos activos</span></div>" +
+            '<div class="kpi' +
+            (venc.length ? " bad" : "") +
+            '"><b>' +
+            venc.length +
+            "</b><span>Préstamos vencidos</span></div>" +
+            '<div class="kpi"><b>' +
+            disp +
+            "</b><span>Ejemplares disponibles</span></div>" +
+            '<div class="kpi"><b>' +
+            store.readers.length +
+            "</b><span>Lectores registrados</span></div>" +
+            "</div>" +
+            '<div class="two eq">' +
+            '<div class="card"><h2>Libros más solicitados</h2>' +
+            (bars
+              ? '<ul class="bars">' + bars + "</ul>"
+              : '<p class="small">Aún no hay préstamos.</p>') +
+            "</div>" +
+            '<div class="card"><h2>Préstamos vencidos</h2>' +
+            (vrows
+              ? '<div class="scroll"><table><thead><tr><th>Lector</th><th>Libro</th><th>Vencía</th><th class="n">Días</th></tr></thead><tbody>' +
+                vrows +
+                "</tbody></table></div>"
+              : '<p class="small">No hay préstamos vencidos.</p>') +
+            "</div>" +
+            "</div>"
+          );
+        }
+
+        document.addEventListener("click", function (ev) {
+          var t = ev.target.closest("[data-act]");
+          if (!t) return;
+          var act = t.getAttribute("data-act");
+          if (act === "go-catalog") {
+            state.view = "catalog";
+            render();
+          } else if (act === "go-login") {
+            state.view = "login";
+            render();
+          } else if (act === "go-panel") {
+            state.view = "panel";
+            render();
+          } else if (act === "logout") {
+            state.user = null;
+            state.view = "catalog";
+            state.msg = null;
+            state.perf = null;
+            render();
+          } else if (act === "filter") {
+            state.filter = t.getAttribute("data-v");
+            renderNav();
+            renderCatalog();
+          } else if (act === "tab") {
+            state.tab = t.getAttribute("data-v");
+            state.msg = null;
+            renderPanel();
+          } else if (act === "return") {
+            var res = registrarDevolucion(Number(t.getAttribute("data-id")));
+            setMsg(res.ok ? "ok" : "err", res.text);
+            renderPanel();
+          } else if (act === "baja") {
+            var code = t.getAttribute("data-code"),
+              e = getEj(code);
+            if (
+              e &&
+              !activeLoanOfEj(code) &&
+              confirm("¿Dar de baja el ejemplar " + code + "? Dejará de aparecer como disponible.")
+            ) {
+              e.baja = true;
+              save();
+              setMsg("ok", "El ejemplar " + code + " fue dado de baja.");
+              renderPanel();
+            }
+          } else if (act === "reset") {
+            if (
+              confirm(
+                "¿Restablecer los datos de prueba? Se perderán los cambios hechos en este navegador.",
+              )
+            ) {
+              store = seed();
+              save();
+              state.perf = null;
+              state.msg = null;
+              renderPanel();
+            }
+          }
+        });
+
+        document.addEventListener("submit", function (ev) {
+          var f = ev.target.getAttribute("data-form");
+          if (!f) return;
+          ev.preventDefault();
+          if (f === "login") {
+            var u = document.getElementById("iUser").value.trim().toLowerCase(),
+              p = document.getElementById("iPass").value;
+            var us = USERS[u];
+            if (!u || !p) {
+              renderLogin("Ingresa tu usuario y tu contraseña.");
+              return;
+            }
+            if (!us || us.pass !== p) {
+              renderLogin(
+                "Usuario o contraseña incorrectos. Revisa tus datos e inténtalo de nuevo.",
+              );
+              return;
+            }
+            state.user = us;
+            state.view = "panel";
+            state.tab = "prestamos";
+            render();
+            focusId("fReader");
+          } else if (f === "loan") {
+            var res = registrarPrestamo(
+              norm(document.getElementById("fReader").value),
+              norm(document.getElementById("fEj").value),
+            );
+            setMsg(res.ok ? "ok" : "err", res.text);
+            renderPanel();
+            focusId("fReader");
+          } else if (f === "reader") {
+            var code = norm(document.getElementById("rCode").value),
+              name = document.getElementById("rName").value.trim();
+            if (!code || !name) {
+              setMsg("err", "Completa el código y el nombre del lector.");
+              renderPanel();
+              return;
+            }
+            if (getReader(code)) {
+              setMsg("err", "Ya existe un lector con el código " + code + ".");
+              renderPanel();
+              return;
+            }
+            store.readers.push({ code: code, name: name });
+            save();
+            setMsg("ok", "Lector " + name + " registrado con el código " + code + ".");
+            renderPanel();
+            focusId("rCode");
+          } else if (f === "book") {
+            var title = document.getElementById("bTitle").value.trim(),
+              author = document.getElementById("bAuthor").value.trim();
+            var n = parseInt(document.getElementById("bN").value, 10);
+            if (!title || !author || !(n >= 1 && n <= 10)) {
+              setMsg("err", "Completa título y autor, e indica entre 1 y 10 ejemplares.");
+              renderPanel();
+              return;
+            }
+            var id = "L-" + (store.seqB + 1 < 10 ? "0" : "") + ++store.seqB;
+            store.books.push({ id: id, title: title, author: author });
+            for (var i = 0; i < n; i++)
+              store.ejem.push({ code: "E-" + ++store.seqE, book: id, baja: false });
+            save();
+            setMsg(
+              "ok",
+              "Libro agregado con " + plural(n, "ejemplar", "ejemplares") + ": " + title + ".",
+            );
+            renderPanel();
+            focusId("bTitle");
+          }
+        });
+
+        document.addEventListener("input", function (ev) {
+          var t = ev.target;
+          if (t.id === "q") {
+            state.q = t.value;
+            renderResults();
+          } else if (t.id === "dq") {
+            state.dq = t.value;
+            var body = document.getElementById("tabBody");
+            var pos = t.selectionStart;
+            body.innerHTML = tabDevoluciones();
+            var n = document.getElementById("dq");
+            n.focus();
+            try {
+              n.setSelectionRange(pos, pos);
+            } catch (e) {}
+          } else if (t.id === "fReader") {
+            var r = getReader(norm(t.value));
+            document.getElementById("hReader").textContent = t.value.trim()
+              ? r
+                ? r.name
+                : "No existe ese código de lector"
+              : "";
+          } else if (t.id === "fEj") {
+            var e = getEj(norm(t.value)),
+              hint = "";
+            if (t.value.trim()) {
+              if (!e) hint = "No existe ese código de ejemplar";
+              else
+                hint =
+                  ejTitle(e.code) +
+                  (e.baja
+                    ? " (de baja)"
+                    : activeLoanOfEj(e.code)
+                      ? " (prestado)"
+                      : " (disponible)");
+            }
+            document.getElementById("hEj").textContent = hint;
+          }
+        });
+
+        render();
+      })();
+    </script>
+  </body>
+</html>
